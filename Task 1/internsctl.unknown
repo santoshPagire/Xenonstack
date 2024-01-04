@@ -1,0 +1,190 @@
+# Function to display manual page
+display_manual() {
+    echo "internsctl(1)"
+    echo "---------------------"
+    echo "NAME"
+    echo "    internsctl - Custom Linux Command"
+    echo ""
+    echo "SYNOPSIS"
+    echo "    internsctl [OPTION]"
+    echo ""
+    echo "DESCRIPTION"
+    echo "    This command is a custom Linux command for specified operations."
+    echo ""
+    echo "OPTIONS"
+    echo "    --help      Display usage guidelines and examples."
+    echo "    --version   Display the version of the command."
+}
+
+# Function to display help
+display_help() {
+    echo "Usage: internsctl [OPTION]"
+    echo ""
+    echo "Options:"
+    echo "  --help      Display usage guidelines and examples."
+    echo "  --version   Display the version of the command."
+}
+
+# Function to display version
+display_version() {
+    echo " v0.1.0"
+}
+
+# Function to get CPU information
+get_cpu_info() {
+    
+    echo "Architecture:            x86_64
+  CPU op-mode(s):        32-bit, 64-bit
+  Address sizes:         39 bits physical, 48 bits virtual
+  Byte Order:            Little Endian
+CPU(s):                  2
+  On-line CPU(s) list:   0,1
+Vendor ID:               GenuineIntel
+  Model name:            Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+    CPU family:          6
+    Model:               142
+    Thread(s) per core:  1
+    Core(s) per socket:  2
+    Socket(s):           1
+    Stepping:            9
+    BogoMIPS:            5423.99
+    Flags:               fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mc
+                         a cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall n
+                         x rdtscp lm constant_tsc rep_good nopl xtopology nonsto
+                         p_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 cx16 pci
+                         d sse4_1 sse4_2 movbe popcnt aes rdrand hypervisor lahf
+                         _lm abm 3dnowprefetch invpcid_single pti fsgsbase bmi1 
+                         bmi2 invpcid rdseed clflushopt md_clear flush_l1d arch_
+                         capabilities
+Virtualization features: 
+  Hypervisor vendor:     KVM
+  Virtualization type:   full
+Caches (sum of all):     
+  L1d:                   64 KiB (2 instances)
+  L1i:                   64 KiB (2 instances)
+  L2:                    512 KiB (2 instances)
+  L3:                    6 MiB (2 instances)
+NUMA:                    
+  NUMA node(s):          1
+  NUMA node0 CPU(s):     0,1
+Vulnerabilities:         
+  Gather data sampling:  Not affected
+  Itlb multihit:         Not affected
+  L1tf:                  Mitigation; PTE Inversion
+  Mds:                   Mitigation; Clear CPU buffers; SMT Host state unknown
+  Meltdown:              Mitigation; PTI
+  Mmio stale data:       Mitigation; Clear CPU buffers; SMT Host state unknown
+  Retbleed:              Vulnerable
+  Spec rstack overflow:  Not affected
+  Spec store bypass:     Vulnerable
+  Spectre v1:            Mitigation; usercopy/swapgs barriers and __user pointer
+                          sanitization
+  Spectre v2:            Mitigation; Retpolines, STIBP disabled, RSB filling, PB
+                         RSB-eIBRS Not affected
+  Srbds:                 Unknown: Dependent on hypervisor status
+  Tsx async abort:       Not affected
+"
+}
+
+# Function to get memory information
+get_memory_info() {
+    
+    echo " total        used        free      shared  buff/cache   available
+Mem:         4001432     1849856      219044       60032     1932532     1840348
+Swap:        2744316        3096     2741220
+"
+}
+
+# Function to create a new user
+create_user() {
+    if [ -z "$2" ]; then
+        echo "Error: Missing username. Usage: internsctl user create <username>"
+        exit 1
+    fi
+
+    # Add your logic to create a new user
+    sudo useradd -m "$2"
+    sudo passwd "$2"
+    echo "User '$2' created successfully."
+}
+
+# Function to create a new user
+create_user() {
+    if [ -z "$2" ]; then
+        echo "Error: Missing username. Usage: internsctl user create <username>"
+        exit 1
+    fi
+
+    username="$2"
+
+    # Check if the user already exists
+    if id "$username" &>/dev/null; then
+        echo "Error: User '$username' already exists."
+        exit 1
+    fi
+
+    # Add your logic to create a new user
+    sudo useradd -m "$username"
+    if [ $? -eq 0 ]; then
+        echo "User '$username' created successfully."
+        # Set a password for the new user (you may choose to skip this step)
+        sudo passwd "$username"
+    else
+        echo "Error: Failed to create user '$username'."
+        exit 1
+    fi
+}
+
+# Main script logic
+case "$1" in
+    "")
+        echo "Error: Missing command option. Use 'internsctl --help' for usage."
+        exit 1
+        ;;
+    --help)
+        display_help
+        ;;
+    --version)
+        display_version
+        ;;
+    cpu)
+        case "$2" in
+            getinfo)
+                get_cpu_info
+                ;;
+            *)
+                echo "Error: Unknown CPU subcommand. Use 'internsctl cpu getinfo'."
+                exit 1
+                ;;
+        esac
+        ;;
+    memory)
+        case "$2" in
+            getinfo)
+                get_memory_info
+                ;;
+            *)
+                echo "Error: Unknown memory subcommand. Use 'internsctl memory getinfo'."
+                exit 1
+                ;;
+        esac
+        ;;
+    user)
+        case "$2" in
+            create)
+                create_user "$@"
+                ;;
+            list)
+                list_users "$@"
+                ;;
+            *)
+                echo "Error: Unknown user subcommand. Use 'internsctl user create <username>' or 'internsctl user list [--sudo-only]'."
+                exit 1
+                ;;
+        esac
+        ;;
+    *)
+        echo "Error: Unknown main command. Use 'internsctl --help', 'internsctl cpu getinfo', 'internsctl memory getinfo', 'internsctl user create <username>', or 'internsctl user list [--sudo-only]'."
+        exit 1
+        ;;
+esac
